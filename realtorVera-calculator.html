@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080c14">
+<meta name="description" content="RealtorVera Rental Property Profit Calculator">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="RealtorVera">
+<title>RealtorVera — Rental Property Profit Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;700&family=Syne:wght@400;700;800;900&display=swap" rel="stylesheet">
+<script>
+const manifest={name:"RealtorVera Rental Property Profit Calculator",short_name:"RealtorVera",description:"Rental Property Profit Calculator by RealtorVera",start_url:".",display:"standalone",background_color:"#080c14",theme_color:"#080c14",icons:[{src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%23080c14'/%3E%3Ctext x='256' y='340' font-size='280' text-anchor='middle' fill='%23f59e0b'%3E🏠%3C/text%3E%3C/svg%3E",sizes:"512x512",type:"image/svg+xml"}]};
+const blob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
+document.write('<link rel="manifest" href="'+URL.createObjectURL(blob)+'">');
+</script>
+<style>
+:root{--bg:#080c14;--surface:#0f1520;--surface2:#141d2e;--border:rgba(255,255,255,0.07);--amber:#f59e0b;--amber-dim:rgba(245,158,11,0.15);--amber-glow:rgba(245,158,11,0.06);--text:#e2e8f0;--muted:#64748b;--subtle:#475569;--green:#34d399;--red:#f87171;--mono:'DM Mono',monospace;--sans:'Syne',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;-webkit-font-smoothing:antialiased;}
+::-webkit-scrollbar{width:5px;height:5px;}::-webkit-scrollbar-track{background:var(--surface);}::-webkit-scrollbar-thumb{background:var(--amber-dim);border-radius:3px;}
+
+/* WELCOME MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1.5rem;}
+.modal{background:var(--surface);border:1px solid var(--amber-dim);border-radius:20px;padding:2rem;width:100%;max-width:400px;text-align:center;}
+.modal-logo{font-family:var(--mono);font-size:0.65rem;color:var(--amber);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:0.5rem;}
+.modal-title{font-size:1.6rem;font-weight:900;color:var(--text);margin-bottom:0.4rem;}
+.modal-sub{font-size:0.8rem;color:var(--muted);margin-bottom:1.5rem;line-height:1.5;}
+.modal input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:0.8rem 1rem;color:var(--text);font-family:var(--sans);font-size:1rem;outline:none;margin-bottom:1rem;transition:border-color 0.2s;}
+.modal input:focus{border-color:var(--amber);}
+.modal-btn{width:100%;background:var(--amber);color:#000;border:none;border-radius:10px;padding:0.85rem;font-family:var(--mono);font-size:0.8rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:opacity 0.2s;}
+.modal-btn:hover{opacity:0.85;}
+.modal-skip{font-size:0.7rem;color:var(--muted);margin-top:0.8rem;cursor:pointer;text-decoration:underline;}
+
+/* HEADER */
+.header{background:linear-gradient(135deg,var(--surface) 0%,#111827 100%);border-bottom:1px solid var(--amber-dim);padding:1rem 1.5rem;position:sticky;top:0;z-index:100;}
+.header-inner{max-width:980px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+.header-left{}
+.header-eyebrow{font-family:var(--mono);font-size:0.6rem;color:var(--amber);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:0.2rem;}
+.header-title{font-size:clamp(1rem,2.5vw,1.4rem);font-weight:900;background:linear-gradient(90deg,#f1f5f9,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-0.02em;line-height:1.2;}
+.header-right{display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;}
+.hdr-btn{background:transparent;border:1px solid var(--border);border-radius:8px;padding:0.4rem 0.75rem;font-family:var(--mono);font-size:0.65rem;color:var(--muted);cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;transition:all 0.2s;white-space:nowrap;}
+.hdr-btn:hover{border-color:var(--amber);color:var(--amber);}
+.hdr-btn.amber{background:var(--amber);color:#000;border-color:var(--amber);font-weight:700;}
+.install-btn{display:none;}
+
+/* PROJECT BAR */
+.project-bar{background:var(--surface2);border-bottom:1px solid var(--border);padding:0.7rem 1.5rem;}
+.project-bar-inner{max-width:980px;margin:0 auto;display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;}
+.project-label{font-family:var(--mono);font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;white-space:nowrap;}
+.project-select{background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:0.75rem;padding:0.4rem 0.6rem;cursor:pointer;outline:none;max-width:200px;}
+.project-select:focus{border-color:var(--amber);}
+.proj-btn{background:transparent;border:1px solid var(--border);border-radius:7px;padding:0.35rem 0.65rem;font-family:var(--mono);font-size:0.62rem;color:var(--muted);cursor:pointer;text-transform:uppercase;letter-spacing:0.05em;transition:all 0.2s;white-space:nowrap;}
+.proj-btn:hover{border-color:var(--amber);color:var(--amber);}
+.proj-btn.danger:hover{border-color:var(--red);color:var(--red);}
+
+/* MAIN */
+.main{max-width:980px;margin:0 auto;padding:1.5rem;}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;}
+@media(max-width:700px){.grid{grid-template-columns:1fr;}}
+
+/* SECTION HEADERS */
+.section-hdr{display:flex;align-items:center;gap:0.5rem;margin:1.5rem 0 0.9rem;padding-bottom:0.35rem;border-bottom:1px solid var(--amber-dim);}
+.section-hdr .icon{font-size:0.9rem;}
+.section-hdr .label{font-family:var(--mono);font-size:0.63rem;color:var(--amber);text-transform:uppercase;letter-spacing:0.14em;font-weight:700;}
+.section-hdr:first-child{margin-top:0;}
+
+/* SLIDERS */
+.slider-row{margin-bottom:1.1rem;}
+.slider-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.22rem;}
+.slider-lbl{font-family:var(--mono);font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;}
+.slider-val{font-family:var(--mono);font-size:0.92rem;color:var(--amber);font-weight:700;}
+.slider-hint{font-size:0.64rem;color:var(--subtle);margin-top:0.15rem;}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:2px;background:var(--surface2);outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--amber);box-shadow:0 0 8px rgba(245,158,11,0.5);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--amber);border:none;cursor:pointer;}
+
+/* CARDS */
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-bottom:1rem;}
+.cards-3{grid-template-columns:1fr 1fr 1fr;}
+.card{background:rgba(255,255,255,0.025);border:1px solid var(--border);border-radius:11px;padding:0.8rem 0.9rem;position:relative;overflow:hidden;}
+.card.highlight{border-color:rgba(245,158,11,0.35);}
+.card.highlight::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--amber),#fbbf24);}
+.card.good{border-color:rgba(52,211,153,0.25);}
+.card.bad{border-color:rgba(248,113,113,0.25);}
+.card-lbl{font-family:var(--mono);font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.09em;margin-bottom:0.28rem;}
+.card-val{font-family:var(--mono);font-size:1.25rem;font-weight:800;line-height:1;}
+.card-sub{font-size:0.65rem;color:var(--subtle);margin-top:0.22rem;}
+
+/* CF BOX */
+.cf-box{background:var(--amber-glow);border:1px solid var(--amber-dim);border-radius:13px;padding:1rem 1.1rem;margin-bottom:1rem;}
+.cf-row{display:flex;justify-content:space-between;align-items:center;padding:0.28rem 0;border-bottom:1px solid rgba(255,255,255,0.04);font-family:var(--mono);}
+.cf-row:last-of-type{border-bottom:none;}
+.cf-row.normal{font-size:0.74rem;color:var(--muted);}
+.cf-row.bold{font-size:0.82rem;color:var(--text);font-weight:700;}
+.cf-row.total{font-size:1rem;font-weight:900;padding-top:0.45rem;margin-top:0.1rem;border-top:1px solid var(--amber-dim);}
+.cf-total-sub{font-size:0.65rem;color:var(--subtle);margin-top:0.18rem;font-family:var(--mono);}
+
+/* CASH-IN */
+.cash-in-box{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:11px;padding:0.85rem 1rem;margin-bottom:1rem;}
+.cash-in-lbl{font-family:var(--mono);font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;}
+.cash-in-row{display:flex;align-items:center;gap:0.7rem;flex-wrap:wrap;}
+.cash-in-item .label{font-size:0.61rem;color:var(--muted);}
+.cash-in-item .val{font-family:var(--mono);font-weight:700;color:var(--text);font-size:0.9rem;}
+.cash-in-item.amber .val{color:var(--amber);}
+.cash-sep{color:var(--subtle);font-size:1rem;}
+
+/* SALE BOX */
+.sale-box{background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.22);border-radius:13px;padding:1rem 1.1rem;margin-top:0.7rem;}
+.sale-title{font-family:var(--mono);font-size:0.6rem;color:var(--amber);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.65rem;}
+.sale-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.55rem;}
+.sale-item .lbl{font-size:0.61rem;color:var(--muted);}
+.sale-item .val{font-family:var(--mono);font-weight:700;font-size:0.9rem;margin-top:0.08rem;}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;margin-top:0.4rem;}
+table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:0.68rem;}
+thead tr{border-bottom:1px solid rgba(245,158,11,0.2);}
+th{padding:0.35rem 0.28rem;color:var(--muted);font-weight:500;text-align:right;white-space:nowrap;}
+th:first-child{text-align:left;}
+td{padding:0.3rem 0.28rem;border-bottom:1px solid rgba(255,255,255,0.03);text-align:right;}
+td:first-child{text-align:left;color:var(--amber);}
+tr:nth-child(even){background:rgba(255,255,255,0.01);}
+
+/* BENCHMARKS */
+.bench-box{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:11px;padding:0.85rem 1rem;margin-top:1rem;}
+.bench-title{font-family:var(--mono);font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.55rem;}
+.bench-row{display:flex;gap:0.55rem;margin-bottom:0.28rem;font-size:0.69rem;}
+.bench-key{font-family:var(--mono);color:var(--amber);min-width:95px;flex-shrink:0;}
+.bench-val{color:var(--subtle);}
+
+/* FOOTER */
+.footer{text-align:center;padding:1.5rem 1rem;font-family:var(--mono);font-size:0.6rem;color:var(--subtle);border-top:1px solid var(--border);margin-top:2rem;}
+.footer .brand{color:var(--amber);font-weight:700;}
+
+/* SHARE MODAL */
+.share-modal{position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);z-index:999;display:none;align-items:center;justify-content:center;padding:1.5rem;}
+.share-modal.open{display:flex;}
+.share-box{background:var(--surface);border:1px solid var(--amber-dim);border-radius:20px;padding:1.8rem;width:100%;max-width:440px;}
+.share-box h3{font-size:1.1rem;font-weight:800;margin-bottom:0.3rem;}
+.share-box p{font-size:0.75rem;color:var(--muted);margin-bottom:1.2rem;line-height:1.5;}
+.share-url{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:0.7rem 0.9rem;font-family:var(--mono);font-size:0.65rem;color:var(--text);word-break:break-all;margin-bottom:1rem;line-height:1.5;max-height:80px;overflow-y:auto;}
+.share-actions{display:flex;gap:0.6rem;flex-wrap:wrap;}
+.share-actions button{flex:1;min-width:100px;padding:0.6rem 0.8rem;border-radius:9px;border:1px solid var(--border);background:transparent;color:var(--text);font-family:var(--mono);font-size:0.68rem;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;transition:all 0.2s;}
+.share-actions button:hover{border-color:var(--amber);color:var(--amber);}
+.share-actions button.primary{background:var(--amber);color:#000;border-color:var(--amber);font-weight:700;}
+.share-close{margin-top:0.8rem;text-align:center;font-size:0.68rem;color:var(--muted);cursor:pointer;text-decoration:underline;}
+
+/* RENAME MODAL */
+.rename-modal{position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);z-index:999;display:none;align-items:center;justify-content:center;padding:1.5rem;}
+.rename-modal.open{display:flex;}
+.rename-box{background:var(--surface);border:1px solid var(--amber-dim);border-radius:16px;padding:1.6rem;width:100%;max-width:360px;}
+.rename-box h3{font-size:1rem;font-weight:800;margin-bottom:0.5rem;}
+.rename-box input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:0.7rem 0.9rem;color:var(--text);font-family:var(--sans);font-size:0.95rem;outline:none;margin-bottom:0.9rem;}
+.rename-box input:focus{border-color:var(--amber);}
+.rename-actions{display:flex;gap:0.5rem;}
+.rename-actions button{flex:1;padding:0.6rem;border-radius:9px;border:1px solid var(--border);background:transparent;color:var(--text);font-family:var(--mono);font-size:0.68rem;cursor:pointer;text-transform:uppercase;letter-spacing:0.05em;}
+.rename-actions button.primary{background:var(--amber);color:#000;border-color:var(--amber);font-weight:700;}
+</style>
+</head>
+<body>
+
+<!-- WELCOME MODAL -->
+<div class="modal-overlay" id="welcomeModal">
+  <div class="modal">
+    <div class="modal-logo">RealtorVera</div>
+    <div class="modal-title">Welcome! 👋</div>
+    <div class="modal-sub">Enter your name to personalize<br>your property calculator.</div>
+    <input type="text" id="nameInput" placeholder="Your name (e.g. John)" maxlength="40" autocomplete="off">
+    <button class="modal-btn" id="nameSubmit">Get Started →</button>
+    <div class="modal-skip" id="nameSkip">Skip for now</div>
+  </div>
+</div>
+
+<!-- SHARE MODAL -->
+<div class="share-modal" id="shareModal">
+  <div class="share-box">
+    <h3>📤 Share Project Link</h3>
+    <p>Anyone who opens this link will see this project with all your numbers pre-filled. Perfect for sharing a deal with a client.</p>
+    <div class="share-url" id="shareUrl">Generating link...</div>
+    <div class="share-actions">
+      <button class="primary" id="copyLinkBtn">Copy Link</button>
+      <button id="shareNativeBtn">Share...</button>
+    </div>
+    <div class="share-close" id="shareClose">Close</div>
+  </div>
+</div>
+
+<!-- RENAME MODAL -->
+<div class="rename-modal" id="renameModal">
+  <div class="rename-box">
+    <h3>Rename Project</h3>
+    <input type="text" id="renameInput" placeholder="e.g. 123 Main St" maxlength="60" autocomplete="off">
+    <div class="rename-actions">
+      <button id="renameCancelBtn">Cancel</button>
+      <button class="primary" id="renameSaveBtn">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div class="header-left">
+      <div class="header-eyebrow">RealtorVera</div>
+      <div class="header-title" id="headerTitle">Rental Property Profit Calculator</div>
+    </div>
+    <div class="header-right">
+      <button class="hdr-btn install-btn" id="installBtn">⬇ Install App</button>
+      <button class="hdr-btn" id="pdfBtn">📄 PDF Report</button>
+      <button class="hdr-btn amber" id="shareBtn">🔗 Share Link</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROJECT BAR -->
+<div class="project-bar">
+  <div class="project-bar-inner">
+    <span class="project-label">Project:</span>
+    <select class="project-select" id="projectSelect"></select>
+    <button class="proj-btn" id="newProjectBtn">+ New</button>
+    <button class="proj-btn" id="renameProjectBtn">✏ Rename</button>
+    <button class="proj-btn danger" id="deleteProjectBtn">🗑 Delete</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="grid">
+
+    <!-- LEFT: INPUTS -->
+    <div id="inputs">
+      <div class="section-hdr"><span class="icon">🏠</span><span class="label">Purchase</span></div>
+      <div class="slider-row"><div class="slider-top"><span class="slider-lbl">Purchase Price</span><span class="slider-val" id="v-price">$300,000</span></div><input type="range" id="s-price" min="50000" max="2000000" step="5000" value="300000"></div>
+      <div class="slider-row"><div class="slider-top"><span class="slider-lbl">Down Payment</span><span class="slider-val" id="v-down">20%</span></div><input type="range" id="s-down" min="5" max="50" step="1" value="20"><div class="slider-hint" id="h-down"></div></div>
+      <div class="slider-row"><div class="slider-top"><span class="slider-lbl">Interest Rate</span><span class="slider-val" id="v-rate">7.0%</span></div><input type="range" id="s-rate" min="3" max="12" step="0.1" value="7.0"></div>
+      <div class="slider-row"><div class="slider-top"><span class="slider-lbl">Loan Term</span><span class="slider-val" id="v-term">30 yrs</span></div><input type="range" id="s-term" min="10" max="30" step="5" value="30"></div>
+      <div class="slider-row"><div class="slider-top"><span class="slider-lbl">Closing Costs</span><span class="slider-val" id="v-closing">3%</span></div><input type="range" id="s-closing" min="1" max="6" step="0.25" value="3"><div class="slider-hint" id="h-closing"></div></div>
+
+      <div class="section-hdr"><span class="icon">💰</span><span class="label">Income</span></div>
+      <div class="slider-row"><div class="slider-top"><span class="slider-lbl">Monthly Rent</span><span class="slider-val" id="v-rent">$2,200</span></div><input type="range" id="s-rent" min="500" max="10000" step="50" value="2200"></div>
+      <div class="slider-row"><div class="slider-top"><span class="slider-lbl">Vacancy Rate</span><span class="slider-val" id="v-vac">5%</span></div><input type="range" id="s-vac" min="0" max="20" step="1" value="5"><div class="slider-hint" id="h-vac"></div></div>
+
+      <div class="section-hdr"><span class="icon">📋</span><span class="label">Operating Expenses</span></div>
+      <div class="slider-row"><div class="slider-top"><span class="slider-lbl">Property Tax</span><span class="slider-val" id="v-tax">1.2% / yr</span></div><input type="range" id="s-tax" min="0.3" max="3.5" step="0.1" value="1.2"><div class="slider-hint" id="h-tax"></div></div>
+      <div class="slider-row"><div class="slider-top"><span class="slider-lbl">Insurance</span><span class="slider-val" id="v-ins">$120/mo</span></div><input type="range" id="s-ins" min="30" max="500" step="10" value="120"></div>
+      <div class="slider-row"><div class="slider-top"><span class="slider-lbl">Maintenance</span><span class="slider-val" id="v-maint">1.0% / yr</span></div><input type="range" id="s-maint" min="0" max="3" step="0.25" value="1.0"><div class="slider-hint" id="h-maint"></div></div>
+      <div class="slider-row"><div class="slider-top"><span class="slider-lbl">CapEx Reserve</span><span class="slider-val" id="v-capex">1.0% / yr</span></div><input type="range" id="s-capex" min="0" max="3" step="0.25" value="1.0"><div class="slider-hint" id="h-capex"></div></div>
+      <div class="slider-row"><div class="slider-top"><span class="slider-lbl">Property Mgmt</span><span class="slider-val" id="v-mgmt">0% rent</span></div><input type="range" id="s-mgmt" min="0" max="12" step="1" value="0"><div class="slider-hint" id="h-mgmt"></div></div>
+      <div class="slider-row"><div class="slider-top"><span class="slider-lbl">HOA Fees</span><span class="slider-val" id="v-hoa">$0/mo</span></div><input type="range" id="s-hoa" min="0" max="800" step="10" value="0"></div>
+
+      <div class="section-hdr"><span class="icon">📈</span><span class="label">Long-Term Assumptions</span></div>
+      <div class="slider-row"><div class="slider-top"><span class="slider-lbl">Annual Appreciation</span><span class="slider-val" id="v-appr">3.0% / yr</span></div><input type="range" id="s-appr" min="0" max="10" step="0.5" value="3.0"></div>
+      <div class="slider-row"><div class="slider-top"><span class="slider-lbl">Rent Growth</span><span class="slider-val" id="v-rentg">2.0% / yr</span></div><input type="range" id="s-rentg" min="0" max="8" step="0.5" value="2.0"></div>
+      <div class="slider-row"><div class="slider-top"><span class="slider-lbl">Hold Period</span><span class="slider-val" id="v-hold">10 yrs</span></div><input type="range" id="s-hold" min="1" max="30" step="1" value="10"></div>
+    </div>
+
+    <!-- RIGHT: RESULTS -->
+    <div id="results">
+      <div class="section-hdr"><span class="icon">📊</span><span class="label">Monthly Snapshot</span></div>
+      <div class="cf-box">
+        <div class="cf-row normal"><span>Gross Rent</span><span id="r-gross">—</span></div>
+        <div class="cf-row normal"><span>− Vacancy</span><span id="r-vac-amt">—</span></div>
+        <div class="cf-row bold"><span>= Effective Rent</span><span id="r-eff">—</span></div>
+        <div class="cf-row normal"><span>− Operating Expenses</span><span id="r-opex">—</span></div>
+        <div class="cf-row bold"><span>= NOI (before mortgage)</span><span id="r-noi">—</span></div>
+        <div class="cf-row normal"><span>− Mortgage P&amp;I</span><span id="r-mtg">—</span></div>
+        <div class="cf-row total"><span>= Net Cash Flow</span><span id="r-cf">—</span></div>
+        <div class="cf-total-sub" id="r-cf-annual"></div>
+      </div>
+
+      <div class="section-hdr"><span class="icon">🎯</span><span class="label">Investment Metrics</span></div>
+      <div class="cards">
+        <div class="card" id="c-cf"><div class="card-lbl">Monthly Cash Flow</div><div class="card-val" id="cv-cf">—</div><div class="card-sub">After all expenses &amp; mortgage</div></div>
+        <div class="card highlight"><div class="card-lbl">Cash-on-Cash Return</div><div class="card-val" id="cv-coc">—</div><div class="card-sub">Annual CF ÷ Cash invested</div></div>
+        <div class="card" id="c-cap"><div class="card-lbl">Cap Rate</div><div class="card-val" id="cv-cap">—</div><div class="card-sub">NOI ÷ Purchase price</div></div>
+        <div class="card" id="c-grm"><div class="card-lbl">Gross Rent Multiplier</div><div class="card-val" id="cv-grm">—</div><div class="card-sub">Price ÷ Annual rent</div></div>
+      </div>
+
+      <div class="cash-in-box">
+        <div class="cash-in-lbl">Cash Required to Close</div>
+        <div class="cash-in-row">
+          <div class="cash-in-item"><div class="label">Down Payment</div><div class="val" id="ci-down">—</div></div>
+          <div class="cash-sep">+</div>
+          <div class="cash-in-item"><div class="label">Closing Costs</div><div class="val" id="ci-close">—</div></div>
+          <div class="cash-sep">=</div>
+          <div class="cash-in-item amber"><div class="label">Total Cash In</div><div class="val" id="ci-total">—</div></div>
+        </div>
+      </div>
+
+      <div class="section-hdr"><span class="icon">🏦</span><span class="label">Year 1 Mortgage Breakdown</span></div>
+      <div class="cards cards-3">
+        <div class="card"><div class="card-lbl">Monthly P&amp;I</div><div class="card-val" id="cv-mtg">—</div><div class="card-sub">Fixed payment</div></div>
+        <div class="card"><div class="card-lbl">Y1 Interest</div><div class="card-val" id="cv-int">—</div><div class="card-sub">Paid to lender</div></div>
+        <div class="card good"><div class="card-lbl">Y1 Principal</div><div class="card-val" style="color:var(--green)" id="cv-prin">—</div><div class="card-sub">Equity built</div></div>
+      </div>
+
+      <div class="section-hdr"><span class="icon">🚀</span><span class="label" id="proj-label">10-Year Projection</span></div>
+      <div class="cards">
+        <div class="card"><div class="card-lbl">Property Value</div><div class="card-val" id="cv-val">—</div><div class="card-sub" id="cv-val-sub">—</div></div>
+        <div class="card"><div class="card-lbl">Remaining Loan</div><div class="card-val" id="cv-bal">—</div><div class="card-sub">Outstanding balance</div></div>
+        <div class="card good"><div class="card-lbl">Built Equity</div><div class="card-val" style="color:var(--green)" id="cv-equity">—</div><div class="card-sub">Value − Loan balance</div></div>
+        <div class="card" id="c-cumcf"><div class="card-lbl">Cumul. Cash Flow</div><div class="card-val" id="cv-cumcf">—</div><div class="card-sub">All years combined</div></div>
+      </div>
+
+      <div class="sale-box">
+        <div class="sale-title" id="sale-title">If You Sell in Year 10</div>
+        <div class="sale-grid">
+          <div class="sale-item"><div class="lbl">Sale Proceeds (after 6% costs)</div><div class="val" id="sv-proceeds">—</div></div>
+          <div class="sale-item"><div class="lbl">Total Profit</div><div class="val" id="sv-profit">—</div></div>
+          <div class="sale-item"><div class="lbl">Total ROI</div><div class="val" style="color:var(--amber)" id="sv-roi">—</div></div>
+          <div class="sale-item"><div class="lbl">Annualized ROI</div><div class="val" style="color:var(--amber)" id="sv-aroi">—</div></div>
+        </div>
+      </div>
+
+      <div class="section-hdr"><span class="icon">📅</span><span class="label">Year-by-Year</span></div>
+      <div class="table-wrap"><table><thead><tr><th>Yr</th><th>Cash Flow</th><th>Prop Value</th><th>Equity</th><th>Total Return</th></tr></thead><tbody id="proj-tbody"></tbody></table></div>
+
+      <div class="bench-box">
+        <div class="bench-title">Industry Benchmarks</div>
+        <div class="bench-row"><span class="bench-key">Cap Rate</span><span class="bench-val">≥ 6% = good · 4–6% = fair · &lt;4% = thin</span></div>
+        <div class="bench-row"><span class="bench-key">Cash-on-Cash</span><span class="bench-val">≥ 8% = strong · 4–8% = ok · &lt;4% = caution</span></div>
+        <div class="bench-row"><span class="bench-key">GRM</span><span class="bench-val">&lt;12× = favorable · &gt;18× = pricey</span></div>
+        <div class="bench-row"><span class="bench-key">1% Rule</span><span class="bench-val" id="bench-1pct">—</span></div>
+        <div class="bench-row"><span class="bench-key">50% Rule</span><span class="bench-val" id="bench-50pct">—</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <span class="brand">RealtorVera</span> Rental Property Profit Calculator &nbsp;·&nbsp; For analysis purposes only &nbsp;·&nbsp; Not financial advice<br>
+  Consult a licensed financial advisor before making investment decisions.
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════
+const $=id=>document.getElementById(id);
+const fmt=(n,d=0)=>n.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtC=n=>'$'+fmt(Math.abs(n));
+const fmtCS=n=>(n<0?'−$':'$')+fmt(Math.abs(n));
+const fmtP=(n,d=1)=>n.toFixed(d)+'%';
+const gv=id=>parseFloat($(id).value);
+const STORE_KEY='rv_projects';
+const USER_KEY='rv_user';
+
+// ══════════════════════════════════════════
+//  USER NAME
+// ══════════════════════════════════════════
+let userName = '';
+
+function initUser(){
+  // Check URL for shared project first
+  const params = new URLSearchParams(location.search);
+  if(params.has('p')){
+    // Shared link — skip welcome, load project from URL
+    $('welcomeModal').style.display='none';
+    loadFromURL(params);
+    return;
+  }
+  const saved = localStorage.getItem(USER_KEY);
+  if(saved){ userName=saved; updateHeaderName(); $('welcomeModal').style.display='none'; }
+  else { $('welcomeModal').style.display='flex'; }
+}
+
+function updateHeaderName(){
+  $('headerTitle').textContent = userName
+    ? userName+"'s Property Calculator"
+    : "Rental Property Profit Calculator";
+}
+
+$('nameSubmit').addEventListener('click',()=>{
+  const n=$('nameInput').value.trim();
+  if(n){ userName=n; localStorage.setItem(USER_KEY,n); }
+  updateHeaderName();
+  $('welcomeModal').style.display='none';
+});
+$('nameInput').addEventListener('keydown',e=>{ if(e.key==='Enter') $('nameSubmit').click(); });
+$('nameSkip').addEventListener('click',()=>{ $('welcomeModal').style.display='none'; });
+
+// ══════════════════════════════════════════
+//  PROJECT MANAGEMENT
+// ══════════════════════════════════════════
+const SLIDER_KEYS=['price','down','rate','term','closing','rent','vac','tax','ins','maint','capex','mgmt','hoa','appr','rentg','hold'];
+const DEFAULTS={price:300000,down:20,rate:7.0,term:30,closing:3,rent:2200,vac:5,tax:1.2,ins:120,maint:1.0,capex:1.0,mgmt:0,hoa:0,appr:3.0,rentg:2.0,hold:10};
+
+let projects={};
+let activeId=null;
+
+function loadProjects(){
+  try{ projects=JSON.parse(localStorage.getItem(STORE_KEY)||'{}'); }catch(e){ projects={}; }
+  if(Object.keys(projects).length===0) createProject('My First Property',true);
+  renderProjectSelect();
+}
+
+function saveProjects(){ localStorage.setItem(STORE_KEY,JSON.stringify(projects)); }
+
+function createProject(name,silent=false){
+  const id='p_'+Date.now();
+  projects[id]={name:name||'New Property',data:{...DEFAULTS}};
+  saveProjects();
+  renderProjectSelect();
+  if(!silent){ setActiveProject(id); }
+  return id;
+}
+
+function renderProjectSelect(){
+  const sel=$('projectSelect');
+  sel.innerHTML='';
+  Object.entries(projects).forEach(([id,proj])=>{
+    const opt=document.createElement('option');
+    opt.value=id; opt.textContent=proj.name;
+    if(id===activeId) opt.selected=true;
+    sel.appendChild(opt);
+  });
+}
+
+function setActiveProject(id){
+  // Save current sliders before switching
+  if(activeId && projects[activeId]){
+    SLIDER_KEYS.forEach(k=>{ projects[activeId].data[k]=gv('s-'+k); });
+    saveProjects();
+  }
+  activeId=id;
+  const proj=projects[id];
+  if(!proj) return;
+  // Load sliders
+  SLIDER_KEYS.forEach(k=>{
+    const el=$('s-'+k);
+    if(el) el.value=proj.data[k]??DEFAULTS[k];
+  });
+  updateAllSliderLabels();
+  renderProjectSelect();
+  recalc();
+}
+
+function saveCurrentSliders(){
+  if(!activeId||!projects[activeId]) return;
+  SLIDER_KEYS.forEach(k=>{ projects[activeId].data[k]=gv('s-'+k); });
+  saveProjects();
+}
+
+$('projectSelect').addEventListener('change',e=>{ setActiveProject(e.target.value); });
+
+$('newProjectBtn').addEventListener('click',()=>{
+  const name=prompt('Project name (e.g. 123 Main St):','New Property');
+  if(name===null) return;
+  const id=createProject(name.trim()||'New Property');
+  setActiveProject(id);
+});
+
+$('renameProjectBtn').addEventListener('click',()=>{
+  if(!activeId) return;
+  $('renameInput').value=projects[activeId].name;
+  $('renameModal').classList.add('open');
+  setTimeout(()=>$('renameInput').focus(),100);
+});
+$('renameCancelBtn').addEventListener('click',()=>$('renameModal').classList.remove('open'));
+$('renameSaveBtn').addEventListener('click',()=>{
+  const n=$('renameInput').value.trim();
+  if(n && activeId){ projects[activeId].name=n; saveProjects(); renderProjectSelect(); }
+  $('renameModal').classList.remove('open');
+});
+$('renameInput').addEventListener('keydown',e=>{ if(e.key==='Enter') $('renameSaveBtn').click(); });
+
+$('deleteProjectBtn').addEventListener('click',()=>{
+  if(Object.keys(projects).length<=1){ alert('You need at least one project.'); return; }
+  if(!confirm('Delete "'+projects[activeId].name+'"?')) return;
+  delete projects[activeId];
+  saveProjects();
+  activeId=null;
+  const firstId=Object.keys(projects)[0];
+  setActiveProject(firstId);
+});
+
+// ══════════════════════════════════════════
+//  SLIDER LABELS
+// ══════════════════════════════════════════
+function updateAllSliderLabels(){
+  const p=gv('s-price'),dn=gv('s-down'),r=gv('s-rate'),t=gv('s-term');
+  const cl=gv('s-closing'),rnt=gv('s-rent'),v=gv('s-vac');
+  const tx=gv('s-tax'),ins=gv('s-ins'),mt=gv('s-maint');
+  const cx=gv('s-capex'),mg=gv('s-mgmt'),h=gv('s-hold');
+  const ap=gv('s-appr'),rg=gv('s-rentg');
+  const downAmt=p*dn/100,loanAmt=p-downAmt;
+  $('v-price').textContent='$'+fmt(p);
+  $('v-down').textContent=dn+'%';
+  $('v-rate').textContent=parseFloat(r).toFixed(1)+'%';
+  $('v-term').textContent=t+' yrs';
+  $('v-closing').textContent=parseFloat(cl).toFixed(2).replace(/\.?0+$/,'')+'%';
+  $('v-rent').textContent='$'+fmt(rnt);
+  $('v-vac').textContent=v+'%';
+  $('v-tax').textContent=parseFloat(tx).toFixed(1)+'% / yr';
+  $('v-ins').textContent='$'+ins+'/mo';
+  $('v-maint').textContent=parseFloat(mt).toFixed(2).replace(/\.?0+$/,'')+'% / yr';
+  $('v-capex').textContent=parseFloat(cx).toFixed(2).replace(/\.?0+$/,'')+'% / yr';
+  $('v-mgmt').textContent=mg+'% rent';
+  $('v-hoa').textContent='$'+gv('s-hoa')+'/mo';
+  $('v-appr').textContent=parseFloat(ap).toFixed(1)+'% / yr';
+  $('v-rentg').textContent=parseFloat(rg).toFixed(1)+'% / yr';
+  $('v-hold').textContent=h+' yrs';
+  $('h-down').textContent='= '+fmtCS(downAmt)+' down · '+fmtCS(loanAmt)+' loan';
+  $('h-closing').textContent='= '+fmtCS(p*cl/100);
+  $('h-vac').textContent='Effective rent: '+fmtCS(rnt*(1-v/100))+'/mo';
+  $('h-tax').textContent='= '+fmtCS(p*tx/100/12)+'/mo';
+  $('h-maint').textContent='= '+fmtCS(p*mt/100/12)+'/mo';
+  $('h-capex').textContent='= '+fmtCS(p*cx/100/12)+'/mo';
+  $('h-mgmt').textContent=mg===0?'Self-managed':'= '+fmtCS(rnt*mg/100)+'/mo';
+}
+
+SLIDER_KEYS.forEach(k=>{
+  const el=$('s-'+k);
+  if(el) el.addEventListener('input',()=>{ updateAllSliderLabels(); recalc(); saveCurrentSliders(); });
+});
+
+// ══════════════════════════════════════════
+//  CALC ENGINE
+// ══════════════════════════════════════════
+function recalc(){
+  const price=gv('s-price'),downPct=gv('s-down'),rate=gv('s-rate'),term=gv('s-term');
+  const closPct=gv('s-closing'),rent=gv('s-rent'),vacPct=gv('s-vac');
+  const taxPct=gv('s-tax'),ins=gv('s-ins'),maintPct=gv('s-maint');
+  const capexPct=gv('s-capex'),mgmtPct=gv('s-mgmt'),hoa=gv('s-hoa');
+  const apprPct=gv('s-appr'),rentgPct=gv('s-rentg'),hold=gv('s-hold');
+
+  const downAmt=price*downPct/100,loanAmt=price-downAmt,closingAmt=price*closPct/100,totalCash=downAmt+closingAmt;
+  const r=rate/100/12,n=term*12;
+  const mtg=r===0?loanAmt/n:loanAmt*(r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1);
+  const effRent=rent*(1-vacPct/100);
+  const taxMo=price*taxPct/100/12,maintMo=price*maintPct/100/12,capexMo=price*capexPct/100/12,mgmtMo=rent*mgmtPct/100;
+  const totalOpEx=taxMo+ins+maintMo+capexMo+mgmtMo+hoa;
+  const noi=effRent-totalOpEx,cf=noi-mtg,annCF=cf*12;
+  const capRate=(noi*12/price)*100,coc=(annCF/totalCash)*100,grm=price/(rent*12);
+
+  let bal=loanAmt,y1Int=0,y1Prin=0;
+  for(let i=0;i<12;i++){const int=bal*r,prin=mtg-int;y1Int+=int;y1Prin+=prin;bal-=prin;}
+
+  let runBal=loanAmt,runRent=rent,runVal=price,cumCF=0;
+  const rows=[];
+  for(let y=1;y<=hold;y++){
+    let yInt=0,yPrin=0;
+    for(let m=0;m<12;m++){const int=runBal*r,prin=mtg-int;yInt+=int;yPrin+=prin;runBal-=prin;}
+    const yNOI=(runRent*(1-vacPct/100)-totalOpEx)*12;
+    const yCF=yNOI-mtg*12; cumCF+=yCF;
+    runVal*=(1+apprPct/100);
+    const equity=runVal-runBal,totalReturn=cumCF+equity-totalCash;
+    rows.push({y,yCF,propVal:runVal,loanBal:runBal,equity,cumCF,totalReturn});
+    runRent*=(1+rentgPct/100);
+  }
+  const last=rows[rows.length-1];
+  const saleProceeds=last.propVal*0.94-last.loanBal;
+  const totalProfit=last.cumCF+saleProceeds-totalCash;
+  const totalROI=(totalProfit/totalCash)*100;
+  const annROI=(Math.pow(1+totalROI/100,1/hold)-1)*100;
+
+  // UPDATE DOM
+  $('r-gross').textContent=fmtCS(rent);
+  $('r-vac-amt').textContent='−'+fmtC(rent*vacPct/100);
+  $('r-eff').textContent=fmtCS(effRent);
+  $('r-opex').textContent='−'+fmtC(totalOpEx);
+  $('r-noi').textContent=fmtCS(noi);
+  $('r-mtg').textContent='−'+fmtC(mtg);
+  $('r-cf').textContent=(cf<0?'−$':'$')+fmt(Math.abs(cf))+'/mo';
+  $('r-cf').style.color=cf>=0?'var(--green)':'var(--red)';
+  $('r-cf-annual').textContent=(annCF<0?'−$':'$')+fmt(Math.abs(annCF))+'/yr · Total invested: '+fmtCS(totalCash);
+  $('cv-cf').textContent=(cf<0?'−$':'$')+fmt(Math.abs(cf));
+  $('cv-cf').style.color=cf>=0?'var(--green)':'var(--red)';
+  $('c-cf').className='card '+(cf>=0?'good':'bad');
+  $('cv-coc').textContent=fmtP(coc);
+  $('cv-coc').style.color=coc>=6?'var(--green)':coc<0?'var(--red)':'var(--amber)';
+  $('cv-cap').textContent=fmtP(capRate);
+  $('cv-cap').style.color=capRate>=6?'var(--green)':capRate<4?'var(--red)':'var(--amber)';
+  $('c-cap').className='card '+(capRate>=6?'good':capRate<4?'bad':'');
+  $('cv-grm').textContent=grm.toFixed(1)+'×';
+  $('cv-grm').style.color=grm<12?'var(--green)':grm>18?'var(--red)':'var(--amber)';
+  $('c-grm').className='card '+(grm<12?'good':grm>18?'bad':'');
+  $('ci-down').textContent=fmtCS(downAmt);
+  $('ci-close').textContent=fmtCS(closingAmt);
+  $('ci-total').textContent=fmtCS(totalCash);
+  $('cv-mtg').textContent=fmtCS(mtg);
+  $('cv-int').textContent=fmtCS(y1Int);
+  $('cv-prin').textContent=fmtCS(y1Prin);
+  $('proj-label').textContent=hold+'-Year Projection';
+  $('sale-title').textContent='If You Sell in Year '+hold;
+  $('cv-val-sub').textContent='At '+apprPct+'%/yr appreciation';
+  $('cv-val').textContent=fmtCS(last.propVal);
+  $('cv-bal').textContent=fmtCS(last.loanBal);
+  $('cv-equity').textContent=fmtCS(last.equity);
+  $('cv-cumcf').textContent=(last.cumCF<0?'−$':'$')+fmt(Math.abs(last.cumCF));
+  $('cv-cumcf').style.color=last.cumCF>=0?'var(--green)':'var(--red)';
+  $('c-cumcf').className='card '+(last.cumCF>=0?'good':'bad');
+  $('sv-proceeds').textContent=fmtCS(saleProceeds);
+  $('sv-profit').textContent=(totalProfit<0?'−$':'$')+fmt(Math.abs(totalProfit));
+  $('sv-profit').style.color=totalProfit>=0?'var(--green)':'var(--red)';
+  $('sv-roi').textContent=fmtP(totalROI);
+  $('sv-aroi').textContent=fmtP(annROI)+'/yr';
+  $('proj-tbody').innerHTML=rows.map(row=>`<tr><td>${row.y}</td><td style="color:${row.yCF>=0?'var(--green)':'var(--red)'}">${(row.yCF<0?'−$':'$')+fmt(Math.abs(row.yCF))}</td><td style="color:var(--subtle)">${fmtCS(row.propVal)}</td><td style="color:var(--subtle)">${fmtCS(row.equity)}</td><td style="color:${row.totalReturn>=0?'var(--green)':'var(--red)'}">${(row.totalReturn<0?'−$':'$')+fmt(Math.abs(row.totalReturn))}</td></tr>`).join('');
+  $('bench-1pct').textContent='Rent ≥ '+fmtCS(price*0.01)+'/mo target (yours: '+fmtCS(rent)+'/mo)';
+  $('bench-50pct').textContent='Budget '+fmtCS(rent*0.5)+'/mo for expenses (yours: '+fmtCS(totalOpEx)+'/mo)';
+}
+
+// ══════════════════════════════════════════
+//  SHAREABLE LINK
+// ══════════════════════════════════════════
+function buildShareURL(){
+  const data={};
+  SLIDER_KEYS.forEach(k=>{ data[k]=gv('s-'+k); });
+  const name=activeId&&projects[activeId]?projects[activeId].name:'Property';
+  const payload=btoa(JSON.stringify({data,name}));
+  const base=location.href.split('?')[0].split('#')[0];
+  return base+'?p='+encodeURIComponent(payload);
+}
+
+function loadFromURL(params){
+  try{
+    const raw=atob(decodeURIComponent(params.get('p')));
+    const {data,name}=JSON.parse(raw);
+    const id=createProject(name,true);
+    projects[id].data={...DEFAULTS,...data};
+    saveProjects();
+    activeId=id;
+    SLIDER_KEYS.forEach(k=>{ const el=$('s-'+k); if(el) el.value=projects[id].data[k]??DEFAULTS[k]; });
+    updateAllSliderLabels(); renderProjectSelect(); recalc();
+  }catch(e){ console.warn('Could not load shared project',e); }
+}
+
+$('shareBtn').addEventListener('click',()=>{
+  saveCurrentSliders();
+  const url=buildShareURL();
+  $('shareUrl').textContent=url;
+  $('shareModal').classList.add('open');
+});
+$('shareClose').addEventListener('click',()=>$('shareModal').classList.remove('open'));
+$('copyLinkBtn').addEventListener('click',()=>{
+  navigator.clipboard.writeText($('shareUrl').textContent).then(()=>{
+    $('copyLinkBtn').textContent='✓ Copied!';
+    setTimeout(()=>$('copyLinkBtn').textContent='Copy Link',2000);
+  });
+});
+$('shareNativeBtn').addEventListener('click',()=>{
+  const url=$('shareUrl').textContent;
+  const name=activeId&&projects[activeId]?projects[activeId].name:'this property';
+  if(navigator.share){ navigator.share({title:'RealtorVera — '+name,text:'Check out my rental property analysis for '+name,url}); }
+  else{ navigator.clipboard.writeText(url); alert('Link copied to clipboard!'); }
+});
+
+// ══════════════════════════════════════════
+//  PDF REPORT
+// ══════════════════════════════════════════
+$('pdfBtn').addEventListener('click',()=>{
+  const projName=activeId&&projects[activeId]?projects[activeId].name:'Property Analysis';
+  const clientName=userName||'Client';
+  const price=gv('s-price'),downPct=gv('s-down'),rate=gv('s-rate'),term=gv('s-term');
+  const closPct=gv('s-closing'),rent=gv('s-rent'),vacPct=gv('s-vac');
+  const taxPct=gv('s-tax'),ins=gv('s-ins'),maintPct=gv('s-maint');
+  const capexPct=gv('s-capex'),mgmtPct=gv('s-mgmt'),hoa=gv('s-hoa');
+  const apprPct=gv('s-appr'),rentgPct=gv('s-rentg'),hold=gv('s-hold');
+  const downAmt=price*downPct/100,loanAmt=price-downAmt,closingAmt=price*closPct/100,totalCash=downAmt+closingAmt;
+  const r=rate/100/12,n=term*12;
+  const mtg=r===0?loanAmt/n:loanAmt*(r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1);
+  const effRent=rent*(1-vacPct/100);
+  const taxMo=price*taxPct/100/12,maintMo=price*maintPct/100/12,capexMo=price*capexPct/100/12,mgmtMo=rent*mgmtPct/100;
+  const totalOpEx=taxMo+ins+maintMo+capexMo+mgmtMo+hoa;
+  const noi=effRent-totalOpEx,cf=noi-mtg,annCF=cf*12;
+  const capRate=(noi*12/price)*100,coc=(annCF/totalCash)*100,grm=price/(rent*12);
+  let runBal=loanAmt,runRent=rent,runVal=price,cumCF=0;
+  const rows=[];
+  for(let y=1;y<=hold;y++){
+    let yInt=0,yPrin=0;
+    for(let m=0;m<12;m++){const int=runBal*r,prin=mtg-int;yInt+=int;yPrin+=prin;runBal-=prin;}
+    const yNOI=(runRent*(1-vacPct/100)-totalOpEx)*12,yCF=yNOI-mtg*12;
+    cumCF+=yCF; runVal*=(1+apprPct/100);
+    const equity=runVal-runBal,totalReturn=cumCF+equity-totalCash;
+    rows.push({y,yCF,propVal:runVal,loanBal:runBal,equity,cumCF,totalReturn});
+    runRent*=(1+rentgPct/100);
+  }
+  const last=rows[rows.length-1];
+  const saleProceeds=last.propVal*0.94-last.loanBal;
+  const totalProfit=last.cumCF+saleProceeds-totalCash;
+  const totalROI=(totalProfit/totalCash)*100;
+  const annROI=(Math.pow(1+totalROI/100,1/hold)-1)*100;
+  const today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  const cfColor=cf>=0?'#16a34a':'#dc2626';
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>RealtorVera — ${projName}</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#fff;color:#1e293b;font-size:13px;padding:32px;}
+    .header{background:#080c14;color:#fff;padding:24px 32px;border-radius:12px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:flex-end;}
+    .brand{font-size:11px;color:#f59e0b;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:4px;}
+    .title{font-size:22px;font-weight:800;color:#fff;}
+    .subtitle{font-size:12px;color:#94a3b8;margin-top:4px;}
+    .meta{text-align:right;font-size:11px;color:#94a3b8;}
+    .section{margin-bottom:20px;}
+    .section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#64748b;border-bottom:1px solid #e2e8f0;padding-bottom:6px;margin-bottom:12px;}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    .grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;}
+    .card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px;}
+    .card-lbl{font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;}
+    .card-val{font-size:18px;font-weight:800;color:#1e293b;}
+    .card-sub{font-size:10px;color:#94a3b8;margin-top:2px;}
+    .cf-table{width:100%;border-collapse:collapse;}
+    .cf-table tr{border-bottom:1px solid #f1f5f9;}
+    .cf-table td{padding:6px 8px;font-size:12px;}
+    .cf-table td:last-child{text-align:right;font-weight:600;}
+    .cf-table tr.bold td{font-weight:700;background:#f8fafc;}
+    .cf-table tr.total td{font-size:15px;font-weight:800;padding:10px 8px;border-top:2px solid #e2e8f0;}
+    .proj-table{width:100%;border-collapse:collapse;font-size:11px;}
+    .proj-table th{background:#080c14;color:#94a3b8;padding:6px 8px;text-align:right;font-weight:600;font-size:10px;text-transform:uppercase;}
+    .proj-table th:first-child{text-align:left;}
+    .proj-table td{padding:5px 8px;border-bottom:1px solid #f1f5f9;text-align:right;}
+    .proj-table td:first-child{text-align:left;color:#f59e0b;font-weight:700;}
+    .proj-table tr:nth-child(even){background:#f8fafc;}
+    .green{color:#16a34a;}.red{color:#dc2626;}.amber{color:#d97706;}
+    .footer{margin-top:24px;padding-top:16px;border-top:1px solid #e2e8f0;font-size:10px;color:#94a3b8;text-align:center;}
+    .footer strong{color:#f59e0b;}
+    @media print{body{padding:16px;}}
+  </style></head><body>
+  <div class="header">
+    <div><div class="brand">RealtorVera</div><div class="title">${projName}</div><div class="subtitle">Rental Property Profit Analysis</div></div>
+    <div class="meta">Prepared for: <strong style="color:#fff">${clientName}</strong><br>${today}</div>
+  </div>
+  <div class="section">
+    <div class="section-title">Monthly Cash Flow Breakdown</div>
+    <table class="cf-table">
+      <tr><td>Gross Monthly Rent</td><td>${fmtCS(rent)}</td></tr>
+      <tr><td>− Vacancy (${vacPct}%)</td><td>−${fmtC(rent*vacPct/100)}</td></tr>
+      <tr class="bold"><td>= Effective Rent</td><td>${fmtCS(effRent)}</td></tr>
+      <tr><td>− Property Tax</td><td>−${fmtC(taxMo)}</td></tr>
+      <tr><td>− Insurance</td><td>−${fmtC(ins)}</td></tr>
+      <tr><td>− Maintenance (${maintPct}%)</td><td>−${fmtC(maintMo)}</td></tr>
+      <tr><td>− CapEx Reserve (${capexPct}%)</td><td>−${fmtC(capexMo)}</td></tr>
+      <tr><td>− Property Mgmt (${mgmtPct}%)</td><td>−${fmtC(mgmtMo)}</td></tr>
+      <tr><td>− HOA</td><td>−${fmtC(hoa)}</td></tr>
+      <tr class="bold"><td>= NOI (Net Operating Income)</td><td>${fmtCS(noi)}</td></tr>
+      <tr><td>− Mortgage P&I</td><td>−${fmtC(mtg)}</td></tr>
+      <tr class="total"><td>= NET CASH FLOW</td><td style="color:${cfColor}">${(cf<0?'−$':'$')+fmt(Math.abs(cf))}/mo</td></tr>
+    </table>
+  </div>
+  <div class="section">
+    <div class="section-title">Key Investment Metrics</div>
+    <div class="grid4">
+      <div class="card"><div class="card-lbl">Monthly Cash Flow</div><div class="card-val" style="color:${cfColor}">${(cf<0?'−$':'$')+fmt(Math.abs(cf))}</div><div class="card-sub">After all expenses</div></div>
+      <div class="card"><div class="card-lbl">Cash-on-Cash Return</div><div class="card-val ${coc>=6?'green':coc<0?'red':'amber'}">${fmtP(coc)}</div><div class="card-sub">Annual CF ÷ Cash in</div></div>
+      <div class="card"><div class="card-lbl">Cap Rate</div><div class="card-val ${capRate>=6?'green':capRate<4?'red':'amber'}">${fmtP(capRate)}</div><div class="card-sub">NOI ÷ Purchase price</div></div>
+      <div class="card"><div class="card-lbl">Gross Rent Mult.</div><div class="card-val ${grm<12?'green':grm>18?'red':'amber'}">${grm.toFixed(1)}×</div><div class="card-sub">Price ÷ Annual rent</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Purchase Summary</div>
+    <div class="grid4">
+      <div class="card"><div class="card-lbl">Purchase Price</div><div class="card-val">${fmtCS(price)}</div></div>
+      <div class="card"><div class="card-lbl">Down Payment (${downPct}%)</div><div class="card-val">${fmtCS(downAmt)}</div></div>
+      <div class="card"><div class="card-lbl">Closing Costs</div><div class="card-val">${fmtCS(closingAmt)}</div></div>
+      <div class="card" style="border-color:#d97706"><div class="card-lbl">Total Cash Required</div><div class="card-val amber">${fmtCS(totalCash)}</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">${hold}-Year Projection (${apprPct}% appreciation · ${rentgPct}% rent growth/yr)</div>
+    <table class="proj-table">
+      <thead><tr><th>Year</th><th>Annual CF</th><th>Property Value</th><th>Equity</th><th>Total Return</th></tr></thead>
+      <tbody>${rows.map(row=>`<tr><td>${row.y}</td><td class="${row.yCF>=0?'green':'red'}">${(row.yCF<0?'−$':'$')+fmt(Math.abs(row.yCF))}</td><td>${fmtCS(row.propVal)}</td><td>${fmtCS(row.equity)}</td><td class="${row.totalReturn>=0?'green':'red'}">${(row.totalReturn<0?'−$':'$')+fmt(Math.abs(row.totalReturn))}</td></tr>`).join('')}</tbody>
+    </table>
+    <div class="grid4" style="margin-top:12px">
+      <div class="card"><div class="card-lbl">Final Property Value</div><div class="card-val">${fmtCS(last.propVal)}</div></div>
+      <div class="card"><div class="card-lbl">Sale Proceeds (−6%)</div><div class="card-val">${fmtCS(saleProceeds)}</div></div>
+      <div class="card"><div class="card-lbl">Total Profit</div><div class="card-val ${totalProfit>=0?'green':'red'}">${(totalProfit<0?'−$':'$')+fmt(Math.abs(totalProfit))}</div></div>
+      <div class="card"><div class="card-lbl">Annualized ROI</div><div class="card-val amber">${fmtP(annROI)}/yr</div></div>
+    </div>
+  </div>
+  <div class="footer"><strong>RealtorVera</strong> Rental Property Profit Calculator &nbsp;·&nbsp; ${today}<br>This report is for analysis purposes only and does not constitute financial or investment advice. Consult a licensed advisor before making investment decisions.</div>
+  </body></html>`;
+
+  const win=window.open('','_blank');
+  win.document.write(html);
+  win.document.close();
+  setTimeout(()=>win.print(),600);
+});
+
+// ══════════════════════════════════════════
+//  PWA
+// ══════════════════════════════════════════
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;$('installBtn').style.display='block';});
+$('installBtn').addEventListener('click',async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();const{outcome}=await deferredPrompt.userChoice;deferredPrompt=null;if(outcome==='accepted')$('installBtn').style.display='none';});
+if('serviceWorker' in navigator){
+  const sw=`const C='rv-v2';self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(['./','/'])));});self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)));});`;
+  navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'application/javascript'}))).catch(()=>{});
+}
+
+// ══════════════════════════════════════════
+//  BOOT
+// ══════════════════════════════════════════
+loadProjects();
+const firstId=Object.keys(projects)[0];
+activeId=firstId;
+SLIDER_KEYS.forEach(k=>{ const el=$('s-'+k); if(el) el.value=projects[firstId].data[k]??DEFAULTS[k]; });
+updateAllSliderLabels();
+recalc();
+initUser();
+</script>
+</body>
+</html>
