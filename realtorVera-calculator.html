@@ -14,6 +14,19 @@
 const manifest={name:"RealtorVera Rental Property Profit Calculator",short_name:"RealtorVera",description:"Rental Property Profit Calculator by RealtorVera",start_url:".",display:"standalone",background_color:"#080c14",theme_color:"#080c14",icons:[{src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%23080c14'/%3E%3Ctext x='256' y='340' font-size='280' text-anchor='middle' fill='%23f59e0b'%3E🏠%3C/text%3E%3C/svg%3E",sizes:"512x512",type:"image/svg+xml"}]};
 const blob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
 document.write('<link rel="manifest" href="'+URL.createObjectURL(blob)+'">');
+
+function editUserName(){
+  var current = userName || '';
+  var newName = prompt('Enter your name (this personalizes your calculator):', current);
+  if(newName !== null){
+    newName = newName.trim();
+    userName = newName;
+    if(newName){ localStorage.setItem(USER_KEY, newName); }
+    else { localStorage.removeItem(USER_KEY); }
+    updateHeaderName();
+  }
+}
+
 </script>
 <style>
 :root{--bg:#080c14;--surface:#0f1520;--surface2:#141d2e;--border:rgba(255,255,255,0.07);--amber:#f59e0b;--amber-dim:rgba(245,158,11,0.15);--amber-glow:rgba(245,158,11,0.06);--text:#e2e8f0;--muted:#64748b;--subtle:#475569;--green:#34d399;--red:#f87171;--mono:'DM Mono',monospace;--sans:'Syne',sans-serif;}
@@ -204,7 +217,7 @@ tr:nth-child(even){background:rgba(255,255,255,0.01);}
   <div class="header-inner">
     <div class="header-left">
       <div class="header-eyebrow">RealtorVera</div>
-      <div class="header-title" id="headerTitle">Rental Property Profit Calculator</div>
+      <div class="header-title" id="headerTitle" onclick="editUserName()" style="cursor:pointer" title="Tap to change name">Rental Property Profit Calculator</div>
     </div>
     <div class="header-right">
       <button class="hdr-btn install-btn" id="installBtn">⬇ Install App</button>
@@ -800,6 +813,19 @@ SLIDER_KEYS.forEach(k=>{ const el=$('s-'+k); if(el) el.value=projects[firstId].d
 updateAllSliderLabels();
 recalc();
 initUser();
+
+function editUserName(){
+  var current = userName || '';
+  var newName = prompt('Enter your name (this personalizes your calculator):', current);
+  if(newName !== null){
+    newName = newName.trim();
+    userName = newName;
+    if(newName){ localStorage.setItem(USER_KEY, newName); }
+    else { localStorage.removeItem(USER_KEY); }
+    updateHeaderName();
+  }
+}
+
 </script>
 </body>
 </html>
