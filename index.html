@@ -217,7 +217,10 @@ tr:nth-child(even){background:rgba(255,255,255,0.01);}
   <div class="header-inner">
     <div class="header-left">
       <div class="header-eyebrow">RealtorVera</div>
-      <div class="header-title" id="headerTitle" onclick="editUserName()" style="cursor:pointer" title="Tap to change name">Rental Property Profit Calculator</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <div class="header-title" id="headerTitle">Rental Property Profit Calculator</div>
+        <button onclick="editUserName()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:4px 10px;font-size:0.7rem;color:var(--amber);cursor:pointer;font-family:inherit;white-space:nowrap">✏️ Edit Name</button>
+      </div>
     </div>
     <div class="header-right">
       <button class="hdr-btn install-btn" id="installBtn">⬇ Install App</button>
